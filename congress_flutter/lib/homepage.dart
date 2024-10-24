@@ -31,8 +31,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Map> returnedBills = [];
   bool _loading = false;
   final TextEditingController policyController = TextEditingController();
-  // policyDrop?
-  //     selectedDropPolicy; // not used? i think? CTRL F doesnt show anything
   String dropdownvalue =
       "none"; // set as none initially to disable Find Bills button
   int offset =
