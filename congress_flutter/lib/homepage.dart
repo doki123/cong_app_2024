@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -28,7 +27,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<String, double> partyData = {};
   bool chartExists = false;
   int durationDays = 31;
-
 
   List<Map> returnedBills = [];
   bool _loading = false;
@@ -191,7 +189,6 @@ class _MyHomePageState extends State<MyHomePage> {
     var sortedByValueMap = Map.fromEntries(chartData.entries.toList()
       ..sort((e1, e2) => e1.value.compareTo(e2.value)));
 
-
     chartData = sortedByValueMap;
 
     return chartData;
@@ -296,73 +293,70 @@ class _MyHomePageState extends State<MyHomePage> {
       } catch (e) {}
 
       try {
-      if (billInDec['bill']['policyArea'] == null) {
-        policyArea = 'Non-Bill';
-      } else {
-        policyArea = billInDec['bill']['policyArea']['name'];
-
-        // SUMMARIES SECTION
-        if (billInDec['bill']['summaries'] == null) {
-          // print('This Bill Does Not Appear to Have Summary');
-          summaryList = ['Summary unavailable'];
+        if (billInDec['bill']['policyArea'] == null) {
+          policyArea = 'Non-Bill';
         } else {
-          var summaryLink = billInDec['bill']['summaries'][
-              'url']; // inside the indiviual bill's info, there is a link that takes you to its summary
-          var formatThis = summaryLink.indexOf("?format");
-          summaryLink = summaryLink.substring(0, formatThis) +
-              "?api_key=" +
-              api_key +
-              "&format=json";
-          var billTextEnc = await http
-              .get(Uri.parse(summaryLink)); // GETS INFO INSIDE OF SUMMARY LINK
-          var billTextDec = jsonDecode(billTextEnc.body);
+          policyArea = billInDec['bill']['policyArea']['name'];
 
-          for (int x = 0; x < billTextDec['summaries'].length; x++) {
-            summaryList.add(billTextDec['summaries'][x]['text']);
+          // SUMMARIES SECTION
+          if (billInDec['bill']['summaries'] == null) {
+            // print('This Bill Does Not Appear to Have Summary');
+            summaryList = ['Summary unavailable'];
+          } else {
+            var summaryLink = billInDec['bill']['summaries'][
+                'url']; // inside the indiviual bill's info, there is a link that takes you to its summary
+            var formatThis = summaryLink.indexOf("?format");
+            summaryLink = summaryLink.substring(0, formatThis) +
+                "?api_key=" +
+                api_key +
+                "&format=json";
+            var billTextEnc = await http.get(
+                Uri.parse(summaryLink)); // GETS INFO INSIDE OF SUMMARY LINK
+            var billTextDec = jsonDecode(billTextEnc.body);
+
+            for (int x = 0; x < billTextDec['summaries'].length; x++) {
+              summaryList.add(billTextDec['summaries'][x]['text']);
+            }
+            // print(summaryList);
           }
-          // print(summaryList);
+          // SPONSORS INFORMATION SECTION
+          for (int x = 0; x < billInDec['bill']['sponsors'].length; x++) {
+            sponsorList.add([
+              billInDec['bill']['sponsors'][x]['party'],
+              billInDec['bill']['sponsors'][x]['state'],
+              // billInDec['bill']['sponsors'][x]['fullName'],
+              billInDec['bill']['sponsors'][x]['firstName'] +
+                  " " +
+                  billInDec['bill']['sponsors'][x]['lastName']
+            ]);
+          }
+
+          // ADD BILL TO LARGE REPERTOIRE
+          billCollection.add({
+            'title': title,
+            'summaries': summaryList,
+            'sponsors': sponsorList,
+            'policy_area': policyArea,
+            'url': textPlease
+          });
+
+          // ADD BILL TO SPECIFIC POLICY AREA LIST
+          List polTem = policyBillsSorted[policyArea];
+
+          polTem.add({
+            'title': title,
+            'summaries': summaryList,
+            'sponsors': sponsorList,
+            'policy_area': policyArea,
+            'url': textPlease,
+          });
+
+          policyBillsSorted[policyArea] = polTem;
         }
-        // SPONSORS INFORMATION SECTION
-        for (int x = 0; x < billInDec['bill']['sponsors'].length; x++) {
-          sponsorList.add([
-            billInDec['bill']['sponsors'][x]['party'],
-            billInDec['bill']['sponsors'][x]['state'],
-            // billInDec['bill']['sponsors'][x]['fullName'],
-            billInDec['bill']['sponsors'][x]['firstName'] +
-                " " +
-                billInDec['bill']['sponsors'][x]['lastName']
-          ]);
-        }
-
-        // ADD BILL TO LARGE REPERTOIRE
-        billCollection.add({
-          'title': title,
-          'summaries': summaryList,
-          'sponsors': sponsorList,
-          'policy_area': policyArea,
-          'url': textPlease
-        });
-
-        // ADD BILL TO SPECIFIC POLICY AREA LIST
-        List polTem = policyBillsSorted[policyArea];
-
-        polTem.add({
-          'title': title,
-          'summaries': summaryList,
-          'sponsors': sponsorList,
-          'policy_area': policyArea,
-          'url': textPlease,
-        });
-
-        policyBillsSorted[policyArea] = polTem;
-      }
-            commonPolicyAreas.add(policyArea);
-
+        commonPolicyAreas.add(policyArea);
       }
       // ignore: empty_catches
-      catch(e) {
-      }
-
+      catch (e) {}
     }
 
     _loading = false;
@@ -375,7 +369,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   polFilter(String selectedPolicy) {
-
     List polParties = [];
     Map<String, double> polMap = {};
     for (int x = 0; x < policyBillsSorted[selectedPolicy].length; x++) {
@@ -428,7 +421,6 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               decoration:
                   BoxDecoration(border: Border.all(color: Colors.green)),
-
               child: Text(
                 "Bills Passed from $formattedDate to $formattedEndDate",
                 style: const TextStyle(
@@ -446,8 +438,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       "No bills found yet!",
                       style: TextStyle(fontSize: 16),
                     ))
-                  :
-                  PieChart(
+                  : PieChart(
                       dataMap: chartData,
                       legendOptions: const LegendOptions(
                           legendPosition: LegendPosition.top,
@@ -487,15 +478,16 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Container(
-                color: dropdownvalue == "none" ? const Color.fromARGB(255, 144, 181, 162) : Colors.green[50],
+                color: dropdownvalue == "none"
+                    ? const Color.fromARGB(255, 144, 181, 162)
+                    : Colors.green[50],
                 padding: const EdgeInsets.all(8.0),
                 child: DropdownButton(
-            
                   value: dropdownvalue,
-            
+
                   // Down Arrow Icon
                   icon: const Icon(Icons.keyboard_arrow_down),
-            
+
                   // Array list of items
                   items: dropdownPolicyList,
                   onChanged: (newValue) {
@@ -507,7 +499,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 5.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 5.0),
               child: TextField(
                 textAlign: TextAlign.center,
                 controller: rangeController,
@@ -517,8 +510,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
                   if (value != "") {
-                                      durationDays = int.parse(value);
-
+                    durationDays = int.parse(value);
                   }
                   setState(() {});
                 },
@@ -527,13 +519,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: TextField(
-            
                   controller:
                       dateController, //editing controller of this TextField
                   decoration: const InputDecoration(
                       icon: Icon(Icons.calendar_today), //icon of text field
                       labelText: "Enter Date" //label text of field
-                    
+
                       ),
                   readOnly: true, // when true user cannot edit text
                   onTap: () async {
@@ -544,17 +535,18 @@ class _MyHomePageState extends State<MyHomePage> {
                             2020), //DateTime.now() - not to allow to choose before today.
                         lastDate: DateTime.now());
                     if (pickedDate != null) {
-                      formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                      formattedDate =
+                          DateFormat('yyyy-MM-dd').format(pickedDate);
                       DateTime endDate = pickedDate.add(Duration(
                           days: durationDays)); // YO. I CHANGED IT TO 7 DAYS.
-                      formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
-            
+                      formattedEndDate =
+                          DateFormat('yyyy-MM-dd').format(endDate);
+
                       setState(() {
                         dateController.text =
                             formattedDate; //set foratted date to TextField value.
                       });
-                    } else {
-                    }
+                    } else {}
                     //when click we have to show the datepicker
                   }),
             ),
@@ -614,7 +606,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     policyBillsSorted[dropdownvalue][index]
                                         ['url']));
                               }
-
                             },
                           ),
                           for (var j in policyBillsSorted[dropdownvalue][index]
