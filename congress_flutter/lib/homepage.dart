@@ -29,7 +29,6 @@ class _MyHomePageState extends State<MyHomePage> {
   bool chartExists = false;
   int durationDays = 31;
 
-  // List<PieData> pies = []; // for Pie Chart; easy_pie_chart.dart
 
   List<Map> returnedBills = [];
   bool _loading = false;
@@ -188,12 +187,10 @@ class _MyHomePageState extends State<MyHomePage> {
         chartData[x] = !chartData.containsKey(x) ? (1) : (chartData[x]! + 1.0));
 
     chartExists = true;
-    print(chartData);
 
     var sortedByValueMap = Map.fromEntries(chartData.entries.toList()
       ..sort((e1, e2) => e1.value.compareTo(e2.value)));
 
-    print(sortedByValueMap);
 
     chartData = sortedByValueMap;
 
@@ -219,7 +216,6 @@ class _MyHomePageState extends State<MyHomePage> {
     chartData = {};
 
     if (nextButton == false) {
-      // if you DO click next button, then it should be appeneded to returnedBills
       returnedBills = [];
       policyBillsSorted = {
         'Agriculture and Food': [],
@@ -254,7 +250,6 @@ class _MyHomePageState extends State<MyHomePage> {
         "Taxation": [],
         "Transportation and Public Works": [],
         "Water Resources Development": [],
-        // "Non-Bill": []
       };
     }
 
@@ -262,20 +257,11 @@ class _MyHomePageState extends State<MyHomePage> {
         'https://api.congress.gov/v3/bill?api_key=$api_key&limit=20&format=json&fromDateTime=$formattedDate'
         'T00:00:00Z&toDateTime=$formattedEndDate'
         'T00:00:00Z&offset=$offset'));
-    print(
-        'https://api.congress.gov/v3/bill?api_key=$api_key&limit=20&format=json&fromDateTime=$formattedDate'
-        'T00:00:00Z&toDateTime=$formattedEndDate'
-        'T00:00:00Z&offset=$offset');
-    print('BILLS BEING RECIEVED');
     var billsDecoded = json.decode(bills.body);
-    int pageCount = billsDecoded['pagination']['count'];
-    print('THESE MANY BILLS $pageCount');
 
     if (billsDecoded['bills'] == null) {
-      print('NO BILLS FOUND');
       return false;
     }
-    print(billsDecoded['bills'].length);
     _loading = true;
     for (int i = 0; i < billsDecoded['bills'].length; i++) {
       String title;
@@ -293,12 +279,10 @@ class _MyHomePageState extends State<MyHomePage> {
       var billIndiv = await http.get(Uri.parse(billUrl));
       var billInDec = jsonDecode(billIndiv
           .body); // THIS IS THE INFORMATION INSIDE THE LINK FOR AN INDIVIDUAL BILL
-      // print(billUrl); // LINK TO BILL THAT INCLUDES THE API KEY; IF YOU WANT TO DISPLAY LINK TO BILL'S TEXT ON APP, DON'T USE THIS LINK
 
       title = billsDecoded['bills'][i]['title']; // TITLE OF BILL
 
       // FIND READABLE BILL URL
-      print('trying to find url of text of bill');
       String billTextUrl =
           billsDecoded['bills'][i]['url']; // GETS URL OF INDIVIDUAL BILL
       billTextUrl =
@@ -311,7 +295,6 @@ class _MyHomePageState extends State<MyHomePage> {
         // ignore: empty_catches
       } catch (e) {}
 
-      // end of bit
       try {
       if (billInDec['bill']['policyArea'] == null) {
         policyArea = 'Non-Bill';
@@ -376,39 +359,34 @@ class _MyHomePageState extends State<MyHomePage> {
             commonPolicyAreas.add(policyArea);
 
       }
+      // ignore: empty_catches
       catch(e) {
-        print(e);
       }
 
-      // commonPolicyAreas.add(policyArea);
     }
 
     _loading = false;
 
-    print('END GETBILLS FUNCTION');
     commonPolicyAreas.removeWhere((element) => element == "Non-Bill");
 
-    // print(policyBillsSorted);
     setState(() {});
 
     return [billCollection, commonPolicyAreas];
   }
 
   polFilter(String selectedPolicy) {
-    // print(policyBillsSorted[selectedPolicy]);
 
     List polParties = [];
     Map<String, double> polMap = {};
     for (int x = 0; x < policyBillsSorted[selectedPolicy].length; x++) {
-      // print(policyBillsSorted[selectedPolicy][x]['sponsors']);
       for (int y = 0;
           y < policyBillsSorted[selectedPolicy][x]['sponsors'].length;
           y++) {
-        // print(policyBillsSorted[selectedPolicy][x]['sponsors'][y][0]);
         polParties.add(policyBillsSorted[selectedPolicy][x]['sponsors'][y][0]);
       }
     }
 
+    // ignore: avoid_function_literals_in_foreach_calls
     polParties.forEach(
         (x) => polMap[x] = !polMap.containsKey(x) ? (1) : (polMap[x]! + 1.0));
 
@@ -434,17 +412,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 244, 255, 246),
+      backgroundColor: const Color.fromARGB(255, 244, 255, 246),
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(
           widget.title,
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -452,8 +425,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           children: <Widget>[
             Container(
-              // color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               decoration:
                   BoxDecoration(border: Border.all(color: Colors.green)),
 
@@ -468,14 +440,13 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: (chartExists == false || chartData.isEmpty || chartData == null)
+              child: (chartExists == false || chartData.isEmpty)
                   ? const Center(
                       child: Text(
                       "No bills found yet!",
                       style: TextStyle(fontSize: 16),
                     ))
                   :
-                  // THIS IS USING THE PIE_CHART.dart VERSION OF PIE CHART
                   PieChart(
                       dataMap: chartData,
                       legendOptions: const LegendOptions(
@@ -488,7 +459,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
             ),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               decoration:
                   BoxDecoration(border: Border.all(color: Colors.green)),
               child: const Center(
@@ -516,29 +487,20 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Container(
-                color: dropdownvalue == "none" ? Color.fromARGB(255, 144, 181, 162) : Colors.green[50],
+                color: dropdownvalue == "none" ? const Color.fromARGB(255, 144, 181, 162) : Colors.green[50],
                 padding: const EdgeInsets.all(8.0),
                 child: DropdownButton(
-                  // Initial Value
-                  // value: dropdownvalue,
             
                   value: dropdownvalue,
-                  // dropdownColor: dropdownvalue == "none" ? Colors.grey : Colors.deepPurple[50],
             
                   // Down Arrow Icon
                   icon: const Icon(Icons.keyboard_arrow_down),
-                  // isExpanded: true,
             
                   // Array list of items
                   items: dropdownPolicyList,
-                  // After selecting the desired option,it will
-                  // change button value to selected value
                   onChanged: (newValue) {
                     dropdownvalue = newValue!;
-                    // if (returnedBills != []) {
                     partyData = polFilter(dropdownvalue);
-                    print(partyData);
-                    // }
                     setState(() {});
                   },
                 ),
@@ -554,12 +516,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
-                  print("THIS IS DROPDOWN VALUE: $value");
                   if (value != "") {
                                       durationDays = int.parse(value);
 
                   }
-                  // durationDays = int.parse(value);
                   setState(() {});
                 },
               ),
@@ -594,7 +554,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             formattedDate; //set foratted date to TextField value.
                       });
                     } else {
-                      print("Date is not selected");
                     }
                     //when click we have to show the datepicker
                   }),
@@ -603,12 +562,8 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: dropdownvalue == "none"
                   ? null
                   : () async {
-                      print(formattedDate);
                       buttonCounter++;
                       billAndTime[buttonCounter] = formattedDate;
-                      print(
-                          '${billAndTime[buttonCounter]} ${billAndTime[buttonCounter - 1]}');
-                      print(formattedEndDate);
                       if (billAndTime[buttonCounter] ==
                           billAndTime[buttonCounter - 1]) {
                         const Text('Choose a new date range!');
@@ -618,14 +573,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         offset = 0;
                         var checkResult = await getBills(
                             formattedDate, formattedEndDate, offset);
-                        print('HELLO');
                         if (checkResult == false) {
-                          print("Oops! no bills");
                         } else {
                           returnedBills = checkResult[0];
                           chartGenerator(checkResult[1]);
-                          print(
-                              "this isreturned bill length ${returnedBills.length}");
 
                           setState(() {});
                         }
@@ -636,15 +587,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text("Find Bills"),
             ),
             (policyBillsSorted[dropdownvalue] == null) || _loading == true
-                // || _billsExist == false
                 ? const LinearProgressIndicator()
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: const ClampingScrollPhysics(),
-                    // itemExtent: 20.0,
                     padding: const EdgeInsets.all(8),
                     itemCount: policyBillsSorted[dropdownvalue].length,
-                    // itemCount: 2,
                     itemBuilder: (BuildContext context, int index) {
                       return ExpansionTile(
                         title: Text(
@@ -653,12 +601,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           selectionColor: Colors.green[500],
                         ),
                         children: <Widget>[
-                          // Text(policyBillsSorted[dropdownvalue][index]
-                          //         ['summaries']
-                          //     .toString()),
-                          // Text(policyBillsSorted[dropdownvalue][index]
-                          //         ['sponsors']
-                          //     .toString()),
                           GestureDetector(
                             child: Text(
                               "URL of Bill: ${policyBillsSorted[dropdownvalue][index]['url']}",
@@ -673,9 +615,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ['url']));
                               }
 
-                              // catch(e) {
-
-                              // }
                             },
                           ),
                           for (var j in policyBillsSorted[dropdownvalue][index]
@@ -687,7 +626,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           for (var j in policyBillsSorted[dropdownvalue][index]
                               ['sponsors'])
                             Text('Sponsor Name: ${j[2].toString()}'),
-                          // for ( var i in policyBillsSorted[dropdownvalue][index]['summaries'] ) Center(child: Text(Bidi.stripHtmlIfNeeded(i.toString()),)),
                           for (var i in policyBillsSorted[dropdownvalue][index]
                               ['summaries'])
                             Center(
@@ -697,22 +635,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                   .replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '\n'),
                               textAlign: TextAlign.center,
                             )),
-
-                          // TODO: FIGURE OUT HOW TO GET NESTED LISTVIEWBUILDER TO WORK, RUN LIST ON SUMMARIES AND SPONSORS
-                          // ListView.builder(
-                          //     // scrollDirection: Axis.vertical,
-                          //     shrinkWrap: true,
-                          //     itemCount:
-                          //         returnedBills[index]['sponsors'].length,
-                          //     itemBuilder:
-                          //         ((BuildContext context2, int index2) {
-                          //       Text(returnedBills[index2]['sponsors'][index]
-                          //           [0]);
-                          //       Text(returnedBills[index2]['sponsors'][index]
-                          //           [1]);
-                          //       Text(returnedBills[index2]['sponsors'][index]
-                          //           [2]);
-                          //     })),
                         ],
                       );
                     },
@@ -720,10 +642,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: getBills,
-      //   child: const Icon(Icons.add),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
